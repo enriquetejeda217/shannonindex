@@ -1,0 +1,147 @@
+---
+title: "Políticas económicas frente al COVID-19:"
+subtitle: "Índice de Shannon para la diversidad de agendas"
+author: "Enrique García-Tejeda"
+institute: "Latin R 2021"
+date: "10 de noviembre de 2021"
+output:
+  xaringan::moon_reader:
+    css: ["latinR.css"]
+    self_contained: true
+    lib_dir: libs
+    nature:
+      ratio: '16:9'
+---
+
+# La Pandemia de COVID-19
+
+Los gobiernos implementaron políticas públicas para atender los efectos de la contracción económica provocada el confinamiento:
+
+- Política fiscal 
+- Política monetaria 
+- Política cambiaria  
+- Política financiera
+
+
+**García-Tejeda, C-E.(2020).** Las políticas económicas frente al COVID19 en México. *GIGAPP Estudios Working Papers*, 7(182-189), 553-568.
+
+---
+
+class: middle
+## ¿Son diversas las intervenciones?
+
+**Índice de Entropía de Shannon**
+
+$$
+{Shannon = -}\sum_{i = 1}^{n}{({(p}{(x_i)} * log{(p(x_i)}})
+$$
+
+
+Es el negativo de la sumatoria de la í-esima(*x*) proporción(*p*) multiplicado por su logaritmo natural (*log*).<br>
+**Boydstun, A. E., Bevan, S., & Thomas III, H. F. (2014).** The importance of attention diversity and how to measure it. *Policy Studies Journal,* 42(2), 173-196.
+
+---
+
+### Definición de la función de Shannon
+
+```{r}
+# x = vector con conteo de políticas públicas
+# y = númer de categorias o rubros de interés
+res <-0
+
+shannonH <- function(x,y){
+  for (i in 1:y){
+    if (x[i] != 0) {
+      res <- (x[i]/sum(x)) * log(x[i]/sum(x)) + res
+    }
+  }                           
+  return(-res)   
+}
+
+
+```
+---
+
+class: chapter-slide
+
+# Resultados
+
+---
+
+## ¿Son diversas las agendas?
+
+```{r }
+
+politicas <- read.csv("politicasEstatalesCovidMexico.csv")
+politicas$Aguascalientes
+shannonH(politicas$Aguascalientes,10)
+shannonH(politicas$Jalisco, 10)
+
+```
+
+
+---
+
+```{r }
+# Data frame para almacenar los valores de Shannon
+estados <- colnames(politicas)
+indicador <- rep(0, 32)
+indiceSH <-data.frame(estados[2:33], indicador)
+
+# Cálculo de Shannon para 32 estados
+for (j in 1:32){
+  indiceSH$indicador[j] <- shannonH(politicas[,j+1],10)
+}
+
+head(indiceSH, 4)
+```
+
+---
+
+class: center
+## Diversidad de las agendas locales
+
+```{r echo = FALSE}
+
+indiceSHOrdenado <- indiceSH[order(indiceSH[,2], decreasing = FALSE),]
+
+barplot(indiceSHOrdenado$indicador,
+        names.arg = indiceSHOrdenado$estados.2.33.,
+        col = "steelblue",
+        las = 2,
+        cex.names=0.7,
+        horiz = TRUE)
+
+```
+
+
+---
+
+## ¿Son diferentes las agendas locales?
+```{r}
+prueba <- politicas[,2:33]
+fisher.test(prueba, simulate.p.value = TRUE)
+
+```
+
+Es una **prueba estadística no paramétrica** que mide la probabilidad de obtener la distribución de frecuencias observadas. ***Ho***: las políticas económicas en las agendas locales no varían por Entidad Federativa
+
+---
+class: center middle
+## Políticas económicas subnacionales
+
+Frente al COVID-19, hay intervenciones amplias, en algunos casos las políticas son diversas, pero **todas las intervenciones son semejantes**. Las agendas de políticas públicas son muy parecidas entre Entidades.
+
+---
+
+class: inverse center middle
+
+## Dudas y contacto
+
+**Enrique García Tejeda**<br> 
+Doctor en Políticas Públicas por el CIDE <br> 
+Profesor del Tecnológico de Monterrey, México
+
+*enrique.garciatejeda@tec.mx*
+
+*twitter: @enriqueGtejeda*
